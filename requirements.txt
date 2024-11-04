@@ -7,4 +7,3 @@ jupyter
 fastapi
 uvicorn
 typing-extensions
-ast
