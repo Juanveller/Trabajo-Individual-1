@@ -9,7 +9,7 @@ import ast
 app = FastAPI()
 
 # Cargar datos
-DF_final = pd.read_csv("DF_procesado.csv", parse_dates=['release_date'], low_memory=False)
+DF_final = pd.read_csv("DF_final.csv", parse_dates=['release_date'], low_memory=False)
 
 # Función auxiliar para convertir nombres de meses a número  
 def mes_en_numero(mes):  
