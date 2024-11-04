@@ -1,11 +1,11 @@
-pandas 
+pandas
 numpy
 matplotlib
 seaborn
 scikit-learn
-jupiter
+jupyter
 fastapi
 uvicorn
-typing
+typing-extensions
 calendar
 ast
