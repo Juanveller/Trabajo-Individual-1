@@ -8,6 +8,11 @@ import ast
 # Inicializar FastAPI
 app = FastAPI()
 
+# Ruta raíz para verificar que la API esté activa
+@app.get("/")
+def root():
+    return {"message": "API is running"}
+
 # Cargar datos
 DF_final = pd.read_csv("DF_final.csv", parse_dates=['release_date'], low_memory=False)
 
