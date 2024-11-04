@@ -7,5 +7,4 @@ jupyter
 fastapi
 uvicorn
 typing-extensions
-calendar
 ast
