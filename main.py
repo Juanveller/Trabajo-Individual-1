@@ -4,6 +4,7 @@ from typing import Optional
 import pandas as pd
 import calendar
 import ast
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Inicializar FastAPI
 app = FastAPI()
@@ -134,6 +135,49 @@ def get_director(nombre_director: str):
         "peliculas": peliculas
     }
 
+# sistema de remomendacion
+
+# Cargar el df_características
+df_caracteristicas = pd.read_csv("df_caracteristicas.csv")
+
+# chequear que el título esté en df_caracteristicas
+df_caracteristicas['title'] = DF_final['title'].values
+
+# Función para obtener recomendaciones basadas en similitud de coseno
+def get_recomendaciones(titulo: str, peliculas_recomendadas: int = 5):
+    # Verificar si el título está en el dataset original
+    if titulo.lower() not in DF_final['title'].str.lower().values:
+        raise HTTPException(status_code=404, detail="Película no encontrada")
+
+    # Obtener el índice de la película de entrada desde DF_final
+    idx = DF_final[DF_final['title'].str.lower() == titulo.lower()].index[0]
+
+    # Calcular la similitud de coseno
+    matriz_caracteristicas = df_caracteristicas.drop(columns=['title']).values  # Excluir el título para la similitud
+    similitud_de_coseno = cosine_similarity([matriz_caracteristicas[idx]], matriz_caracteristicas)[0]
+
+    # Ordenar las películas por similitud de coseno y excluir la película de entrada
+    similar_indices = similitud_de_coseno.argsort()[::-1][1:peliculas_recomendadas+1]
+
+    # Obtener títulos y detalles de las películas similares
+    peliculas_recomendadas = DF_final.iloc[similar_indices][['title','genres','vote_average','release_year']].to_dict(orient="records")
+
+    return peliculas_recomendadas
+
+# Configuración de FastAPI
+@app.get("/get_recomendaciones/")
+def obtener_recomendaciones(titulo: str, peliculas_recomendadas: Optional[int] = 5):
+    try:
+        recomendaciones = get_recomendaciones(titulo, peliculas_recomendadas)
+        return {"Titulo": titulo, "Recomendaciones": recomendaciones}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Ocurrió un error al generar las recomendaciones")
+
+
+
+
 if __name__ == "__main__":  
     import uvicorn  
-    uvicorn.run(app, host="0.0.0.0",port=8000) 
+    uvicorn.run(app, host="0.0.0.0",port=8000)
